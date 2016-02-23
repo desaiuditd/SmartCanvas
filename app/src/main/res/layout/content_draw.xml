@@ -12,4 +12,9 @@
     tools:context="in.incognitech.smartcanvas.DrawActivity"
     tools:showIn="@layout/activity_draw">
 
+    <in.incognitech.smartcanvas.views.PaintView
+        android:id="@+id/paint"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
 </RelativeLayout>
