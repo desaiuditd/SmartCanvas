@@ -1,6 +1,8 @@
 package in.incognitech.smartcanvas;
 
+import android.app.NotificationManager;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
@@ -73,6 +75,13 @@ public class DrawActivity extends AppCompatActivity {
                 paintView.setDrawingCacheEnabled(false);
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancelAll();
     }
 
     private File createImageFile() throws IOException {
