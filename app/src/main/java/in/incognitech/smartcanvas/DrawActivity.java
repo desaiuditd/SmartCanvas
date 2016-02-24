@@ -6,6 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
@@ -26,6 +30,27 @@ import in.incognitech.smartcanvas.views.PaintView;
 public class DrawActivity extends AppCompatActivity {
 
     private PaintView paintView;
+
+    private SensorManager mSensorManager;
+    private float mAccel; // acceleration apart from gravity
+    private float mAccelCurrent; // current acceleration including gravity
+    private float mAccelLast; // last acceleration including gravity
+
+    private final SensorEventListener mSensorListener = new SensorEventListener() {
+        public void onSensorChanged(SensorEvent se) {
+            float x = se.values[0];
+            float y = se.values[1];
+            float z = se.values[2];
+            mAccelLast = mAccelCurrent;
+            mAccelCurrent = (float) Math.sqrt((double) (x*x + y*y + z*z));
+            float delta = mAccelCurrent - mAccelLast;
+            mAccel = mAccel * 0.9f + delta; // perform low-cut filter
+
+            DrawActivity.this.resetCanvas();
+        }
+
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +100,21 @@ public class DrawActivity extends AppCompatActivity {
                 paintView.setDrawingCacheEnabled(false);
             }
         });
+
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+
+        mAccel = 0.00f;
+        mAccelCurrent = SensorManager.GRAVITY_EARTH;
+        mAccelLast = SensorManager.GRAVITY_EARTH;
+
+    }
+
+    private void resetCanvas() {
+        int accel = Math.abs((int) mAccel);
+        if (accel > 5) {
+            System.out.println(accel);
+            paintView.clear();
+        }
     }
 
     @Override
@@ -82,6 +122,14 @@ public class DrawActivity extends AppCompatActivity {
         super.onResume();
         NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancelAll();
+
+        mSensorManager.registerListener(mSensorListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    @Override
+    protected void onPause() {
+        mSensorManager.unregisterListener(mSensorListener);
+        super.onPause();
     }
 
     private File createImageFile() throws IOException {
