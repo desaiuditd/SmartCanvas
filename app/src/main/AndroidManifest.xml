@@ -3,6 +3,7 @@
     package="in.incognitech.smartcanvas">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS"></uses-permission>
 
     <application
         android:allowBackup="true"
@@ -37,6 +38,7 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
     </application>
