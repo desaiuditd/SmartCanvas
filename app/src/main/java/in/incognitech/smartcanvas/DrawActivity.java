@@ -112,8 +112,10 @@ public class DrawActivity extends AppCompatActivity {
     private void resetCanvas() {
         int accel = Math.abs((int) mAccel);
         if (accel > 5) {
-            System.out.println(accel);
             paintView.clear();
+
+            Intent play = new Intent(this, PlaySound.class);
+            this.startService(play);
         }
     }
 
